@@ -41,8 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   ActivityEvent _activityEvent = ActivityEvent(ActivityType.UNKNOWN, 0);
   ActivityRecognition activityRecognition = ActivityRecognition();
 
-  List<int> RR = [];
-
+  final List<int> RR = [];
+  final List<int> Movements = [];
   late Timer rrTimer;
   late Timer oneMinuteTimer;
   late Timer fiveMinuteTimerOnce;
@@ -64,13 +64,11 @@ class _MyHomePageState extends State<MyHomePage> {
     conditionStreamController = StreamController();
     analysis = AnalysisService();
     _init();
-    _events.add(ActivityEvent.unknown());
     super.initState();
   }
 
   @override
   void dispose() {
-    activityStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -91,15 +89,25 @@ class _MyHomePageState extends State<MyHomePage> {
   void _startTracking() {
     activityStreamSubscription = activityRecognition
         .activityStream(runForegroundService: true)
-        .listen(onData, onError: onError);
+        .listen(onDataBefore5Min, onError: onError);
   }
 
-  void onData(ActivityEvent activityEvent) {
+  void onDataBefore5Min(ActivityEvent activityEvent) {
     print(activityEvent);
     _activityEvent = activityEvent;
     setState(() {
       _events.add(activityEvent);
     });
+  }
+
+  void onDataAfter5Min(ActivityEvent activityEvent) {
+    print(activityEvent);
+    _activityEvent = activityEvent;
+    setState(() {
+      _events.add(activityEvent);
+    });
+    Movements.add(checklIfIsMoving(activityEvent));
+    Movements.removeAt(0);
   }
 
   void onError(Object error) {
@@ -190,7 +198,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startRecording() {
-    // generate random RR values between 700-800 and add to array dynamically increasing sliding window
+    // start tracking movement on phone
+    _init();
+
+    // generate random RR values between 700-800 and add to array. Dynamically increasing sliding window.
     rrTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       int rr = random.nextInt(100) + 700;
       RR.add(rr);
@@ -201,26 +212,30 @@ class _MyHomePageState extends State<MyHomePage> {
     DateTime end = DateTime(now.year, now.month, now.day, 24, 0);
     // set timer that will trigger by the end of the day 24:00
     dayTimer = Timer(Duration(seconds: end.difference(now).inSeconds), () {
+      activityStreamSubscription?.cancel();
+
       if (rrTimer.isActive) rrTimer.cancel();
       if (oneMinuteTimer.isActive) oneMinuteTimer.cancel();
       if (fiveMinuteTimerOnce.isActive) fiveMinuteTimerOnce.cancel();
       if (fiveMinuteTimerPeriodic.isActive) fiveMinuteTimerPeriodic.cancel();
       if (tenSecTimer.isActive) tenSecTimer.cancel();
-      // TODO: Send files to storage
+      // TODO: Send files to storage input-data & output-data
     });
 
     // timer after 1 min
     oneMinuteTimer = Timer(const Duration(seconds: 10), () {
+      print("1 min");
       tenSecTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
         var Ri = analysis.rmssdCalc(RR);
         var Pi = analysis.hrCalc(RR);
+        var Ai = hasMovedCalc(Movements);
         rmssdStreamController.add(Ri.toString());
         hrStreamController.add(Pi.toString());
 
         var isMoving = checklIfIsMoving(_activityEvent);
         movementStreamController.add(isMoving.toString());
 
-        var condition = checkForCondition(Ri, Pi, isMoving, 40, 60);
+        var condition = checkForCondition(Ri, Pi, Ai, 40, 60);
 
         condition != null
             ? conditionStreamController.add(condition.message)
@@ -230,6 +245,9 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     fiveMinuteTimerOnce = Timer(const Duration(seconds: 30), () {
+      print("5 min");
+      activityStreamSubscription?.cancel();
+
       if (rrTimer.isActive) rrTimer.cancel();
 
       rrTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -238,6 +256,11 @@ class _MyHomePageState extends State<MyHomePage> {
         RR.removeAt(0);
         //TODO: save RR to CSV file
       });
+
+      activityStreamSubscription = activityRecognition
+          .activityStream(runForegroundService: true)
+          .listen(onDataAfter5Min, onError: onError);
+
       fiveMinuteTimerOnce.cancel();
     });
 
@@ -259,6 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
     hrStreamController.add("");
     movementStreamController.add("");
     conditionStreamController.add("");
+    activityStreamSubscription?.cancel();
   }
 
   Widget buildItem(String title, Widget page) {

@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:collection/collection.dart';
 import 'package:activity_recognition_flutter/activity_recognition_flutter.dart';
 
 enum RatingOfPerceivedExertion {
@@ -29,12 +29,23 @@ class PerceivedExertion {
       required this.message});
 }
 
-bool checklIfIsMoving(ActivityEvent activityEvent) {
-  return (activityEvent.type == ActivityType.ON_BICYCLE ||
+bool hasMovedCalc(List<int> movements) {
+  if (movements.isNotEmpty) {
+    var sum = movements.sum;
+    var ratio = sum / movements.length;
+    return ratio.round() == 0 ? false : true;
+  }
+  return false;
+}
+
+int checklIfIsMoving(ActivityEvent activityEvent) {
+  var isMoving = (activityEvent.type == ActivityType.ON_BICYCLE ||
       activityEvent.type == ActivityType.ON_FOOT ||
       activityEvent.type == ActivityType.RUNNING ||
       activityEvent.type == ActivityType.WALKING);
   // && activityEvent.confidence > 40;
+
+  return isMoving ? 1 : 0;
 }
 
 PerceivedExertion? checkForCondition(
@@ -156,28 +167,28 @@ PerceivedExertion? recovery(num Ri, num Pi, num Rsa, num Psa) {
 
     switch (result.ratingOfPerceivedExertion) {
       case RatingOfPerceivedExertion.NoExertionAtAll:
-        result.message = "Du har ingen återhämtning stress";
+        result.message = "Du har ingen återhämtning";
         break;
       case RatingOfPerceivedExertion.ExtremelyLight:
-        result.message = "Du har extremt lätt återhämtning stress";
+        result.message = "Du har extremt lätt återhämtning";
         break;
       case RatingOfPerceivedExertion.VeryLight:
-        result.message = "Du har väldigt lätt återhämtning stress";
+        result.message = "Du har väldigt lätt återhämtning";
         break;
       case RatingOfPerceivedExertion.Light:
-        result.message = "Du har lätt återhämtning stress";
+        result.message = "Du har lätt återhämtning";
         break;
       case RatingOfPerceivedExertion.SomewhatHard:
-        result.message = "Du har någorlunda återhämtning stress";
+        result.message = "Du har någorlunda återhämtning";
         break;
       case RatingOfPerceivedExertion.Hard:
-        result.message = "Du har hård återhämtning stress";
+        result.message = "Du har hård återhämtning";
         break;
       case RatingOfPerceivedExertion.VeryHard:
-        result.message = "Du har mycket hård återhämtning stress";
+        result.message = "Du har mycket hård återhämtning";
         break;
       case RatingOfPerceivedExertion.ExtremelyHard:
-        result.message = "Du har extremet hård återhämtning stress";
+        result.message = "Du har extremet hård återhämtning";
         break;
       case RatingOfPerceivedExertion.MaximalExcertion:
         result.message = "Du har maximal återhämtning stress";
