@@ -2,24 +2,12 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:activity_recognition_flutter/activity_recognition_flutter.dart';
 
-enum RatingOfPerceivedExertion {
-  NoExertionAtAll,
-  ExtremelyLight,
-  VeryLight,
-  Light,
-  SomewhatHard,
-  Hard,
-  VeryHard,
-  ExtremelyHard,
-  MaximalExcertion
-}
-
 enum TypeOfExertion { MentalStress, PhysicalStress, Recovery }
 
 class PerceivedExertion {
   DateTime date;
   TypeOfExertion typeOfExertion;
-  RatingOfPerceivedExertion ratingOfPerceivedExertion;
+  double ratingOfPerceivedExertion;
   String message;
 
   PerceivedExertion(
@@ -43,7 +31,7 @@ int checklIfIsMoving(ActivityEvent activityEvent) {
       activityEvent.type == ActivityType.ON_FOOT ||
       activityEvent.type == ActivityType.RUNNING ||
       activityEvent.type == ActivityType.WALKING);
-  // && activityEvent.confidence > 40;
+  // && activityEvent.confidence > 50;
 
   return isMoving ? 1 : 0;
 }
@@ -66,135 +54,181 @@ PerceivedExertion? checkForCondition(
 }
 
 PerceivedExertion? mentalStress(num Ri, num Pi, bool Ai, num Rsa, num Psa) {
-  if (Ri < Rsa * 0.8 && Pi > Psa * 1.2 && !Ai) {
+  final RiLimit = Rsa * 0.8;
+  final PiLimit = Psa * 1.2;
+
+  if (Ri < RiLimit && Pi > PiLimit && !Ai) {
     Random random = Random();
     var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
         typeOfExertion: TypeOfExertion.MentalStress,
-        ratingOfPerceivedExertion: RatingOfPerceivedExertion.values[rating],
+        ratingOfPerceivedExertion: -1,
         message: '');
 
-    switch (result.ratingOfPerceivedExertion) {
-      case RatingOfPerceivedExertion.NoExertionAtAll:
-        result.message = "Du har ingen mental stress";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyLight:
-        result.message = "Du har extremt lätt mental stress";
-        break;
-      case RatingOfPerceivedExertion.VeryLight:
-        result.message = "Du har väldigt lätt mental stress";
-        break;
-      case RatingOfPerceivedExertion.Light:
-        result.message = "Du har lätt mental stress";
-        break;
-      case RatingOfPerceivedExertion.SomewhatHard:
-        result.message = "Du har någorlunda mental stress";
-        break;
-      case RatingOfPerceivedExertion.Hard:
-        result.message = "Du har hård mental stress";
-        break;
-      case RatingOfPerceivedExertion.VeryHard:
-        result.message = "Du har mycket hård mental stress";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyHard:
-        result.message = "Du har extremet hård mental stress";
-        break;
-      case RatingOfPerceivedExertion.MaximalExcertion:
-        result.message = "Du har maximal mental stress";
-        break;
-      default:
+    var RiLimitLower = RiLimit - 30;
+    var PiLimitUpper = PiLimit + 30;
+
+    double RiRating = 0;
+    double PiRating = 0;
+
+    if (Ri < RiLimitLower + 3) {
+      RiRating = 10;
+    } else if (Ri < RiLimitLower + 6) {
+      RiRating = 9;
+    } else if (Ri < RiLimitLower + 9) {
+      RiRating = 8;
+    } else if (Ri < RiLimitLower + 12) {
+      RiRating = 7;
+    } else if (Ri < RiLimitLower + 15) {
+      RiRating = 6;
+    } else if (Ri < RiLimitLower + 18) {
+      RiRating = 5;
+    } else if (Ri < RiLimitLower + 21) {
+      RiRating = 4;
+    } else if (Ri < RiLimitLower + 24) {
+      RiRating = 3;
+    } else if (Ri < RiLimitLower + 27) {
+      RiRating = 2;
+    } else if (Ri < RiLimitLower + 30) {
+      RiRating = 1;
     }
+
+    if (Pi < PiLimit + 3) {
+      PiRating = 1;
+    } else if (Pi < PiLimit + 6) {
+      PiRating = 2;
+    } else if (Pi < PiLimit + 9) {
+      PiRating = 3;
+    } else if (Pi < PiLimit + 12) {
+      PiRating = 4;
+    } else if (Pi < PiLimit + 15) {
+      PiRating = 5;
+    } else if (Pi < PiLimit + 18) {
+      PiRating = 6;
+    } else if (Pi < PiLimit + 21) {
+      PiRating = 7;
+    } else if (Pi < PiLimit + 24) {
+      PiRating = 8;
+    } else if (Pi < PiLimit + 27) {
+      PiRating = 9;
+    } else if (Pi < PiLimit + 30) {
+      PiRating = 10;
+    }
+
+    result.ratingOfPerceivedExertion = PiRating * RiRating / 10;
     return result;
   }
   return null;
 }
 
 PerceivedExertion? physicalStress(num Pi, bool Ai, num Psa) {
-  if (Pi > Psa * 1.7 && Ai) {
+  var PiLimit = Psa * 1.7;
+
+  if (Pi > PiLimit && Ai) {
     Random random = Random();
     var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
         typeOfExertion: TypeOfExertion.MentalStress,
-        ratingOfPerceivedExertion: RatingOfPerceivedExertion.values[rating],
+        ratingOfPerceivedExertion: -1,
         message: '');
 
-    switch (result.ratingOfPerceivedExertion) {
-      case RatingOfPerceivedExertion.NoExertionAtAll:
-        result.message = "Du har ingen fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyLight:
-        result.message = "Du har extremt lätt fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.VeryLight:
-        result.message = "Du har väldigt lätt fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.Light:
-        result.message = "Du har lätt fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.SomewhatHard:
-        result.message = "Du har någorlunda fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.Hard:
-        result.message = "Du har hård fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.VeryHard:
-        result.message = "Du har mycket hård fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyHard:
-        result.message = "Du har extremet hård fysisk stress";
-        break;
-      case RatingOfPerceivedExertion.MaximalExcertion:
-        result.message = "Du har maximal fysisk stress";
-        break;
-      default:
+    var PiLimitUpper = PiLimit + 30;
+
+    double PiScalar = 0;
+
+    if (Pi < PiLimit + 3) {
+      PiScalar = 1;
+    } else if (Pi < PiLimit + 6) {
+      PiScalar = 2;
+    } else if (Pi < PiLimit + 9) {
+      PiScalar = 3;
+    } else if (Pi < PiLimit + 12) {
+      PiScalar = 4;
+    } else if (Pi < PiLimit + 15) {
+      PiScalar = 5;
+    } else if (Pi < PiLimit + 18) {
+      PiScalar = 6;
+    } else if (Pi < PiLimit + 21) {
+      PiScalar = 7;
+    } else if (Pi < PiLimit + 24) {
+      PiScalar = 8;
+    } else if (Pi < PiLimit + 27) {
+      PiScalar = 9;
+    } else if (Pi < PiLimit + 30) {
+      PiScalar = 10;
     }
+    result.ratingOfPerceivedExertion = PiScalar;
     return result;
   }
   return null;
 }
 
 PerceivedExertion? recovery(num Ri, num Pi, num Rsa, num Psa) {
-  if (Ri < Rsa * 1.2 && Pi < Psa * 0.9) {
+  var RiLimit = Rsa * 1.2;
+  var PiLimit = Psa * 0.9;
+
+  if (Ri > RiLimit && Pi < PiLimit) {
     Random random = Random();
     var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
         typeOfExertion: TypeOfExertion.MentalStress,
-        ratingOfPerceivedExertion: RatingOfPerceivedExertion.values[rating],
+        ratingOfPerceivedExertion: -1,
         message: '');
 
-    switch (result.ratingOfPerceivedExertion) {
-      case RatingOfPerceivedExertion.NoExertionAtAll:
-        result.message = "Du har ingen återhämtning";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyLight:
-        result.message = "Du har extremt lätt återhämtning";
-        break;
-      case RatingOfPerceivedExertion.VeryLight:
-        result.message = "Du har väldigt lätt återhämtning";
-        break;
-      case RatingOfPerceivedExertion.Light:
-        result.message = "Du har lätt återhämtning";
-        break;
-      case RatingOfPerceivedExertion.SomewhatHard:
-        result.message = "Du har någorlunda återhämtning";
-        break;
-      case RatingOfPerceivedExertion.Hard:
-        result.message = "Du har hård återhämtning";
-        break;
-      case RatingOfPerceivedExertion.VeryHard:
-        result.message = "Du har mycket hård återhämtning";
-        break;
-      case RatingOfPerceivedExertion.ExtremelyHard:
-        result.message = "Du har extremet hård återhämtning";
-        break;
-      case RatingOfPerceivedExertion.MaximalExcertion:
-        result.message = "Du har maximal återhämtning stress";
-        break;
-      default:
+    var RiLimitLower = RiLimit - 30;
+    var PiLimitUpper = PiLimit + 30;
+
+    double RiScalar = 0;
+    double PiScalar = 0;
+
+    if (Ri < RiLimitLower + 3) {
+      RiScalar = 10;
+    } else if (Ri < RiLimitLower + 6) {
+      RiScalar = 9;
+    } else if (Ri < RiLimitLower + 9) {
+      RiScalar = 8;
+    } else if (Ri < RiLimitLower + 12) {
+      RiScalar = 7;
+    } else if (Ri < RiLimitLower + 15) {
+      RiScalar = 6;
+    } else if (Ri < RiLimitLower + 18) {
+      RiScalar = 5;
+    } else if (Ri < RiLimitLower + 21) {
+      RiScalar = 4;
+    } else if (Ri < RiLimitLower + 24) {
+      RiScalar = 3;
+    } else if (Ri < RiLimitLower + 27) {
+      RiScalar = 2;
+    } else if (Ri < RiLimitLower + 30) {
+      RiScalar = 1;
     }
+
+    if (Pi < PiLimit + 3) {
+      PiScalar = 1;
+    } else if (Pi < PiLimit + 6) {
+      PiScalar = 2;
+    } else if (Pi < PiLimit + 9) {
+      PiScalar = 3;
+    } else if (Pi < PiLimit + 12) {
+      PiScalar = 4;
+    } else if (Pi < PiLimit + 15) {
+      PiScalar = 5;
+    } else if (Pi < PiLimit + 18) {
+      PiScalar = 6;
+    } else if (Pi < PiLimit + 21) {
+      PiScalar = 7;
+    } else if (Pi < PiLimit + 24) {
+      PiScalar = 8;
+    } else if (Pi < PiLimit + 27) {
+      PiScalar = 9;
+    } else if (Pi < PiLimit + 30) {
+      PiScalar = 10;
+    }
+
+    result.ratingOfPerceivedExertion = PiScalar * RiScalar / 10;
     return result;
   }
   return null;

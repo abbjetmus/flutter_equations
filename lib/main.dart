@@ -238,7 +238,8 @@ class _MyHomePageState extends State<MyHomePage> {
         var condition = checkForCondition(Ri, Pi, Ai, 40, 60);
 
         condition != null
-            ? conditionStreamController.add(condition.message)
+            ? conditionStreamController
+                .add(condition.ratingOfPerceivedExertion.toString())
             : conditionStreamController.add('');
       });
       oneMinuteTimer.cancel();
