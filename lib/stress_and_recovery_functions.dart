@@ -58,61 +58,66 @@ PerceivedExertion? mentalStress(num Ri, num Pi, bool Ai, num Rsa, num Psa) {
   final PiLimit = Psa * 1.2;
 
   if (Ri < RiLimit && Pi > PiLimit && !Ai) {
-    Random random = Random();
-    var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
         typeOfExertion: TypeOfExertion.MentalStress,
         ratingOfPerceivedExertion: -1,
         message: '');
 
-    var RiLimitLower = RiLimit - 30;
-    var PiLimitUpper = PiLimit + 30;
+    double RiLimitLower = 0;
+    double RiIncrement = 3;
+    double PiIncrement = 3;
+
+    if (RiLimit >= 30) {
+      RiLimitLower = RiLimit - 30;
+    } else {
+      RiIncrement = RiLimit / 10;
+    }
 
     double RiRating = 0;
     double PiRating = 0;
 
-    if (Ri < RiLimitLower + 3) {
+    if (Ri < RiLimitLower + RiIncrement) {
       RiRating = 10;
-    } else if (Ri < RiLimitLower + 6) {
+    } else if (Ri < RiLimitLower + RiIncrement * 2) {
       RiRating = 9;
-    } else if (Ri < RiLimitLower + 9) {
+    } else if (Ri < RiLimitLower + RiIncrement * 3) {
       RiRating = 8;
-    } else if (Ri < RiLimitLower + 12) {
+    } else if (Ri < RiLimitLower + RiIncrement * 4) {
       RiRating = 7;
-    } else if (Ri < RiLimitLower + 15) {
+    } else if (Ri < RiLimitLower + RiIncrement * 5) {
       RiRating = 6;
-    } else if (Ri < RiLimitLower + 18) {
+    } else if (Ri < RiLimitLower + RiIncrement * 6) {
       RiRating = 5;
-    } else if (Ri < RiLimitLower + 21) {
+    } else if (Ri < RiLimitLower + RiIncrement * 7) {
       RiRating = 4;
-    } else if (Ri < RiLimitLower + 24) {
+    } else if (Ri < RiLimitLower + RiIncrement * 8) {
       RiRating = 3;
-    } else if (Ri < RiLimitLower + 27) {
+    } else if (Ri < RiLimitLower + RiIncrement * 9) {
       RiRating = 2;
-    } else if (Ri < RiLimitLower + 30) {
+    } else {
       RiRating = 1;
     }
 
-    if (Pi < PiLimit + 3) {
+    if (Pi < PiLimit + PiIncrement) {
       PiRating = 1;
-    } else if (Pi < PiLimit + 6) {
+    } else if (Pi < PiLimit + PiIncrement * 2) {
       PiRating = 2;
-    } else if (Pi < PiLimit + 9) {
+    } else if (Pi < PiLimit + PiIncrement * 3) {
       PiRating = 3;
-    } else if (Pi < PiLimit + 12) {
+    } else if (Pi < PiLimit + PiIncrement * 4) {
       PiRating = 4;
-    } else if (Pi < PiLimit + 15) {
+    } else if (Pi < PiLimit + PiIncrement * 5) {
       PiRating = 5;
-    } else if (Pi < PiLimit + 18) {
+    } else if (Pi < PiLimit + PiIncrement * 6) {
       PiRating = 6;
-    } else if (Pi < PiLimit + 21) {
+    } else if (Pi < PiLimit + PiIncrement * 7) {
       PiRating = 7;
-    } else if (Pi < PiLimit + 24) {
+    } else if (Pi < PiLimit + PiIncrement * 8) {
       PiRating = 8;
-    } else if (Pi < PiLimit + 27) {
+    } else if (Pi < PiLimit + PiIncrement * 9) {
       PiRating = 9;
-    } else if (Pi < PiLimit + 30) {
+    } else {
       PiRating = 10;
     }
 
@@ -126,40 +131,36 @@ PerceivedExertion? physicalStress(num Pi, bool Ai, num Psa) {
   var PiLimit = Psa * 1.7;
 
   if (Pi > PiLimit && Ai) {
-    Random random = Random();
-    var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
-        typeOfExertion: TypeOfExertion.MentalStress,
+        typeOfExertion: TypeOfExertion.PhysicalStress,
         ratingOfPerceivedExertion: -1,
         message: '');
 
-    var PiLimitUpper = PiLimit + 30;
-
-    double PiScalar = 0;
-
-    if (Pi < PiLimit + 3) {
-      PiScalar = 1;
-    } else if (Pi < PiLimit + 6) {
-      PiScalar = 2;
-    } else if (Pi < PiLimit + 9) {
-      PiScalar = 3;
-    } else if (Pi < PiLimit + 12) {
-      PiScalar = 4;
-    } else if (Pi < PiLimit + 15) {
-      PiScalar = 5;
-    } else if (Pi < PiLimit + 18) {
-      PiScalar = 6;
-    } else if (Pi < PiLimit + 21) {
-      PiScalar = 7;
-    } else if (Pi < PiLimit + 24) {
-      PiScalar = 8;
-    } else if (Pi < PiLimit + 27) {
-      PiScalar = 9;
-    } else if (Pi < PiLimit + 30) {
-      PiScalar = 10;
+    double PiRating = 0;
+    const PiIncrement = 3;
+    if (Pi < PiLimit + PiIncrement) {
+      PiRating = 1;
+    } else if (Pi < PiLimit + PiIncrement * 2) {
+      PiRating = 2;
+    } else if (Pi < PiLimit + PiIncrement * 3) {
+      PiRating = 3;
+    } else if (Pi < PiLimit + PiIncrement * 4) {
+      PiRating = 4;
+    } else if (Pi < PiLimit + PiIncrement * 5) {
+      PiRating = 5;
+    } else if (Pi < PiLimit + PiIncrement * 6) {
+      PiRating = 6;
+    } else if (Pi < PiLimit + PiIncrement * 7) {
+      PiRating = 7;
+    } else if (Pi < PiLimit + PiIncrement * 8) {
+      PiRating = 8;
+    } else if (Pi < PiLimit + PiIncrement * 9) {
+      PiRating = 9;
+    } else {
+      PiRating = 10;
     }
-    result.ratingOfPerceivedExertion = PiScalar;
+    result.ratingOfPerceivedExertion = PiRating;
     return result;
   }
   return null;
@@ -170,65 +171,70 @@ PerceivedExertion? recovery(num Ri, num Pi, num Rsa, num Psa) {
   var PiLimit = Psa * 0.9;
 
   if (Ri > RiLimit && Pi < PiLimit) {
-    Random random = Random();
-    var rating = random.nextInt(8);
     PerceivedExertion? result = PerceivedExertion(
         date: DateTime.now(),
-        typeOfExertion: TypeOfExertion.MentalStress,
+        typeOfExertion: TypeOfExertion.Recovery,
         ratingOfPerceivedExertion: -1,
         message: '');
 
-    var RiLimitLower = RiLimit - 30;
-    var PiLimitUpper = PiLimit + 30;
+    double PiLimitLower = 0;
+    double RiIncrement = 3;
+    double PiIncrement = 3;
 
-    double RiScalar = 0;
-    double PiScalar = 0;
-
-    if (Ri < RiLimitLower + 3) {
-      RiScalar = 10;
-    } else if (Ri < RiLimitLower + 6) {
-      RiScalar = 9;
-    } else if (Ri < RiLimitLower + 9) {
-      RiScalar = 8;
-    } else if (Ri < RiLimitLower + 12) {
-      RiScalar = 7;
-    } else if (Ri < RiLimitLower + 15) {
-      RiScalar = 6;
-    } else if (Ri < RiLimitLower + 18) {
-      RiScalar = 5;
-    } else if (Ri < RiLimitLower + 21) {
-      RiScalar = 4;
-    } else if (Ri < RiLimitLower + 24) {
-      RiScalar = 3;
-    } else if (Ri < RiLimitLower + 27) {
-      RiScalar = 2;
-    } else if (Ri < RiLimitLower + 30) {
-      RiScalar = 1;
+    if (PiLimit >= 30) {
+      PiLimitLower = PiLimit - 30;
+    } else {
+      PiIncrement = PiLimit / 10;
     }
 
-    if (Pi < PiLimit + 3) {
-      PiScalar = 1;
-    } else if (Pi < PiLimit + 6) {
-      PiScalar = 2;
-    } else if (Pi < PiLimit + 9) {
-      PiScalar = 3;
-    } else if (Pi < PiLimit + 12) {
-      PiScalar = 4;
-    } else if (Pi < PiLimit + 15) {
-      PiScalar = 5;
-    } else if (Pi < PiLimit + 18) {
-      PiScalar = 6;
-    } else if (Pi < PiLimit + 21) {
-      PiScalar = 7;
-    } else if (Pi < PiLimit + 24) {
-      PiScalar = 8;
-    } else if (Pi < PiLimit + 27) {
-      PiScalar = 9;
-    } else if (Pi < PiLimit + 30) {
-      PiScalar = 10;
+    double RiRating = 0;
+    double PiRating = 0;
+
+    if (Ri < RiLimit + RiIncrement) {
+      RiRating = 1;
+    } else if (Ri < RiLimit + RiIncrement * 2) {
+      RiRating = 2;
+    } else if (Ri < RiLimit + RiIncrement * 3) {
+      RiRating = 3;
+    } else if (Ri < RiLimit + RiIncrement * 4) {
+      RiRating = 4;
+    } else if (Ri < RiLimit + RiIncrement * 5) {
+      RiRating = 5;
+    } else if (Ri < RiLimit + RiIncrement * 6) {
+      RiRating = 6;
+    } else if (Ri < RiLimit + RiIncrement * 7) {
+      RiRating = 7;
+    } else if (Ri < RiLimit + RiIncrement * 8) {
+      RiRating = 8;
+    } else if (Ri < RiLimit + RiIncrement * 9) {
+      RiRating = 9;
+    } else {
+      RiRating = 10;
     }
 
-    result.ratingOfPerceivedExertion = PiScalar * RiScalar / 10;
+    if (Pi < PiLimitLower + PiIncrement) {
+      PiRating = 10;
+    } else if (Pi < PiLimitLower + PiIncrement * 2) {
+      PiRating = 9;
+    } else if (Pi < PiLimitLower + PiIncrement * 3) {
+      PiRating = 8;
+    } else if (Pi < PiLimitLower + PiIncrement * 4) {
+      PiRating = 7;
+    } else if (Pi < PiLimitLower + PiIncrement * 5) {
+      PiRating = 6;
+    } else if (Pi < PiLimitLower + PiIncrement * 6) {
+      PiRating = 5;
+    } else if (Pi < PiLimitLower + PiIncrement * 7) {
+      PiRating = 4;
+    } else if (Pi < PiLimitLower + PiIncrement * 8) {
+      PiRating = 3;
+    } else if (Pi < PiLimitLower + PiIncrement * 9) {
+      PiRating = 2;
+    } else {
+      PiRating = 1;
+    }
+
+    result.ratingOfPerceivedExertion = PiRating * RiRating / 10;
     return result;
   }
   return null;
